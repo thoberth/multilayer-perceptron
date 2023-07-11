@@ -1,6 +1,4 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+from utils import *
 
 if __name__=='__main__':
 	header = []
@@ -12,4 +10,4 @@ if __name__=='__main__':
 	df.drop(['ID'], axis=1, inplace=True)
 	X = df.drop(['Diagnosis'], axis=1).to_numpy()
 	y = df['Diagnosis'].to_numpy().reshape(-1, 1)
-	
+	arg = ['layer', 'epochs', 'loss']
