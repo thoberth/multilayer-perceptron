@@ -50,6 +50,7 @@ def control_file(file_path):
 		raise argparse.ArgumentTypeError(f"Impossible d'ouvrir le fichier '{file_path}' en lecture")
 	return file_path
 
+
 def control_lossfunction(loss_function):
 	func = None
 	if loss_function == 'binarycrossentropy':
