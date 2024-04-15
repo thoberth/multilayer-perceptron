@@ -14,8 +14,9 @@ class Layer:
 
 	def feedforwarding(self, X : np.ndarray, batch: int):
 		if not isinstance(self.W, np.ndarray):
-			self.W = np.random.rand(self.nbr_neuron, X.shape[0])
-			self.b = np.random.rand(self.nbr_neuron, 1)
+			self.W = np.random.randn(self.nbr_neuron, X.shape[0])
+			self.b = np.random.randn(self.nbr_neuron, 1)
+			print(self.W.max(), self.W.min())
 		# print('X shape =  ', X.shape, ' taille de W', self.W.shape, ' taille de b: ', self.b)
 		x_batch = np.array_split(X, batch, axis=1)
 		Z = []

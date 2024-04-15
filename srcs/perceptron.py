@@ -55,21 +55,21 @@ class Perceptron:
 				self.layers[i].update_weight_and_bias(gradients[abs(i - (len(self.layers) - 1))], self.lr)
 
 
-			if len(acc) > 0 and accuracy_score(y.flatten(), self.predict(Z[len(Z) - 1].flatten())) < acc[len(acc) -1]:
-				print('ACCURACY',  acc)
+			if len(loss) > 0 and self.loss_function(y, Z[len(Z) - 1]) > loss[len(loss) -1]:
+				print('Early stop')
 				break
-			if iter % 50 == 0:
-				# A = []
-				# A.append(activation_function(self.layers[0].feedforwarding(X_valid.T, self.batch_size)))
-				# for i in range(1, len(self.layers)):
-				# 	A.append(activation_function(self.layers[i].feedforwarding(A[i-1], self.batch_size)))
+			if iter % 250 == 0:
+				A = []
+				A.append(activation_function(self.layers[0].feedforwarding(X_valid.T, self.batch_size)))
+				for i in range(1, len(self.layers)):
+					A.append(activation_function(self.layers[i].feedforwarding(A[i-1], self.batch_size)))
 				loss.append(self.loss_function(y, Z[len(Z) - 1]))
 				acc.append(accuracy_score(y.flatten(), self.predict(Z[len(Z) - 1].flatten())))
-				# acc2.append(accuracy_score(y_valid.flatten(), self.predict(A[len(A) - 1].flatten())))
+				acc2.append(accuracy_score(y_valid.flatten(), self.predict(A[len(A) - 1].flatten())))
 				print('LOSS : ', loss[len(loss) - 1], '\tACCURACY', acc[len(acc) -1])
 		plt.plot(loss)
 		plt.plot(acc)
-		# plt.plot(acc2)
+		plt.plot(acc2)
 		plt.show()
 
 

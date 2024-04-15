@@ -12,7 +12,7 @@ if __name__ == '__main__':
 									and then train with chosen args")
 	parser.add_argument('-hl', '--layer', nargs='+', default=[8, 8], type=int, action='store', help='Size of number of layers')
 	
-	parser.add_argument('-e', '--epochs', type=control_epochs, action='store', help='Number of epochs while training')
+	parser.add_argument('-e', '--epochs', type=control_epochs, default=100, action='store', help='Number of epochs while training')
 	
 	parser.add_argument('-l', '--loss', type=control_lossfunction, default=binarycrossentropy, choices=['binarycrossentropy'], action='store', help='The loss Function')
 	
