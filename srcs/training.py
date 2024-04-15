@@ -4,6 +4,8 @@ from utils import control_batchsize, control_epochs, control_lr, control_file, c
 from perceptron import Perceptron
 from activation_functions import softmax
 from loss_functions import binarycrossentropy
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="This create a NN Perceptron\
@@ -26,6 +28,11 @@ if __name__ == '__main__':
 	control_layers(args.layer)
 
 	df = pd.read_csv(args.csv)
+	df_valid = pd.read_csv(args.csv2)
 	y = df.iloc[:, 1].apply(lambda x: 0 if x == 'B' else 1).to_numpy()
 	X = df.iloc[:, 2:].to_numpy()
-	p = Perceptron().train(X, y, softmax, args.loss)
+	# sns.pairplot(df.iloc[:, 1:10], hue='1')
+	# plt.show()
+	X_valid = df_valid.iloc[:, 2:].to_numpy()
+	y_valid = df_valid.iloc[:, 1].apply(lambda x: 0 if x == 'B' else 1).to_numpy()
+	p = Perceptron(layers=args.layer, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate).train(X, y, softmax, X_valid, y_valid)

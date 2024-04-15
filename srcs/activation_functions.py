@@ -1,13 +1,17 @@
 import numpy as np
+import sklearn
 # Softmax MANDATORY
 # hyperboloid tangent
 # rectified linear unit
 
 
 def softmax(Z):
-	print("Entree softmax X = ?", Z.shape)
-	to_divid = sum(np.exp(Z))
-	res = np.array([(np.exp(i))/to_divid for i in Z])
-	# res = np.where(res < 0.5, 0, 1)
-	print("shape apres fonction d'activation", res.shape)
+	# print(Z)
+	res = 1/(1 + np.exp(- Z))
+	# print(res)
+	# res = np.exp(Z)/np.sum(np.exp(Z))
+	return res
+
+def sigmoid(Z):
+	res = 1/(1 + np.exp(- Z))
 	return res
