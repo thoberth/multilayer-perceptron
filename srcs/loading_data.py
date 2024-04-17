@@ -63,10 +63,10 @@ if __name__=='__main__':
 	parser = argparse.ArgumentParser(description="This program first preprocess data and then \
 								  split Data into two dataset Training and Validation.")
 	parser.add_argument('-r', '--random_state',  action='store', 
-					 type=control_random_state, nargs=1, 
+					 type=control_random_state, 
 					 default=42, help='Seed for shuflling the dataset before split')
 	parser.add_argument('-t', '--training_size',  action='store', 
-					 type=control_training_size, nargs=1, 
+					 type=control_training_size, 
 					 default=0.8, help='Size of Training Dataset')
 	parser.add_argument('-s', '--standardization', action='store' ,
 					 type=str, choices=['minmax', 'zscore'],

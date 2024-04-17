@@ -6,12 +6,19 @@ import sklearn
 
 
 def softmax(Z):
-	# print(Z)
-	res = 1/(1 + np.exp(- Z))
-	# print(res)
-	# res = np.exp(Z)/np.sum(np.exp(Z))
+	e_z = np.exp(Z)
+	res = e_z/ np.sum(e_z)
+	# print('softmax')
 	return res
 
 def sigmoid(Z):
-	res = 1/(1 + np.exp(- Z))
+	# print('sigmoid')
+	res = 1/(1 + np.exp(-Z))
 	return res
+
+def tanh(Z):
+	res = (np.exp(Z) - np.exp(- Z))/((np.exp(Z) + np.exp(- Z)))
+	return res
+
+def ReLu(Z, threshold = 0):
+	return np.max(threshold, Z)
