@@ -1,15 +1,28 @@
 import numpy as np
-from activation_functions  import sigmoid, softmax
-
+from activation_functions  import sigmoid, softmax, tanh, ReLu, derivative_Relu, derivative_sigmoid, derivative_softmax, derivative_tanh
 
 class Layer:
-	def __init__(self, neuron=8, activation_f=softmax) -> None:
+	def __init__(self, neuron=8, activation_f='softmax') -> None:
 		self.W = None
 		self.b = None
-		self.activation_f = activation_f
+		if activation_f == 'softmax':
+			self.activation_f = softmax
+			self.derivative_f = derivative_softmax
+		elif activation_f == 'sigmoid':
+			self.activation_f = sigmoid
+			self.derivative_f = derivative_sigmoid
+		elif activation_f == 'tanh':
+			self.activation_f = tanh
+			self.derivative_f = derivative_tanh
+		elif activation_f == 'ReLu' :
+			self.activation_f = ReLu
+			self.derivative_f = derivative_Relu
 		self.nbr_neuron = neuron
 		print(f"Creation d'un hidden layer avec {neuron} neurones...")
 
+
+	# def compute_grad(self, Input, output, y):
+		
 
 	def update_weight_and_bias(self, gradients, lr: float):
 		self.W = self.W - lr * gradients[0]

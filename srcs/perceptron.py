@@ -10,13 +10,13 @@ from sklearn.metrics import accuracy_score
 from typing import List
 
 class Perceptron:
-	def __init__(self, layers=[8, 8], activation=[sigmoid, sigmoid],  epochs=50, loss_function='binaryCrossentropy', lr=1e-4, batch_size=16) -> None:
+	def __init__(self, layers=[8, 8], activation=['sigmoid', 'sigmoid'],  epochs=50, loss_function='binaryCrossentropy', lr=1e-4, batch_size=16) -> None:
 		self.layers = []
 		# for nb_neuron, acti in zip(layers, activation):
 		for nb_neuron in layers:
-			self.layers.append(Layer(nb_neuron, sigmoid))
-		# self.layers.append(Layer(1, softmax))
-		self.layers.append(Layer(1, sigmoid))
+			self.layers.append(Layer(nb_neuron, "sigmoid"))
+		self.layers.append(Layer(1, "softmax"))
+		# self.layers.append(Layer(1, "sigmoid"))
 		self.epochs = epochs
 		self.loss_function = loss_function
 		self.batch_size = batch_size
@@ -26,7 +26,7 @@ class Perceptron:
 	def compute_gradients(self, X, y, Z):
 		gradients = []
 		m = y.shape[1]
-		dZ = Z[len(Z) - 1] - y 
+		dZ = Z[len(Z) - 1]
 		for i in range(len(Z) - 1, -1, -1):
 			if i == 0:
 				dW = 1/m * dZ.dot(X.T)
@@ -35,15 +35,15 @@ class Perceptron:
 				
 			db = 1/m * np.sum(dZ, axis=1, keepdims=True)
 			if i!=0:
-				dZ = np.dot(self.layers[i].W.T, dZ) * Z[i - 1] * (1 - Z[i - 1])
+				dZ = np.dot(self.layers[i].W.T, dZ) * self.layers[i].derivative_f(Z[i]) # np.dot(self.layers[i].W.T, dZ) * deritative
 			gradients.append([dW, db])
 		return gradients
+
 
 	def backpropagation(self, X, y, Z):
 		gradients = self.compute_gradients(X.T, y.reshape(-1, 1).T, Z)
 		for i in range(len(self.layers) -1, -1, -1):
 			self.layers[i].update_weight_and_bias(gradients[abs(i - (len(self.layers) - 1))], self.lr)
-
 
 
 	def train(self, X, y, X_valid, y_valid):
@@ -69,14 +69,14 @@ class Perceptron:
 				acc.append(accuracy_score(y.flatten(), self.predict(Z[len(Z) - 1].flatten())))
 				acc2.append(accuracy_score(y_valid.flatten(), self.predict(A[len(A) - 1].flatten())))
 				print('LOSS : ', loss[len(loss) - 1], '\tACCURACY', acc[len(acc) -1], '\tACCURACY2', acc2[len(acc2) -1])
-				if len(acc2) > 1 and acc2[len(acc2) -1] < acc2[len(acc2) -2]:
-					print(f'Early stop before overfitting at iter = {iter}, last weights retablished')
-					self.layers = deepcopy(old_layers)
-					break
-				else:
-					old_layers = deepcopy(self.layers)
-				# self.plot_history(loss, acc, acc2)
-		# plt.show()
+				# if len(acc2) > 1 and acc2[len(acc2) -1] < acc2[len(acc2) -2]:
+				# 	print(f'Early stop before overfitting at iter = {iter}, last weights retablished')
+				# 	self.layers = deepcopy(old_layers)
+				# 	break
+				# else:
+				# 	old_layers = deepcopy(self.layers)
+				self.plot_history(loss, acc, acc2)
+		plt.show()
 
 
 	def plot_history(self, loss: List, acc: List, acc2: List):
@@ -87,7 +87,9 @@ class Perceptron:
 			plt.xlim(0, 25)
 			plt.ylim(0, 1.5)
 			plt.legend()
-		# plt.pause(0.1)
+		elif len(loss) >= 25:
+			plt.xlim(0, len(loss) + 5)
+		plt.pause(0.1)
 
 
 	def predict(self, Z):
@@ -103,3 +105,4 @@ class Perceptron:
 	def load_model(self, filename):
 		with open(filename, 'rb') as f:
 			self.layers = pickle.load(f)
+
