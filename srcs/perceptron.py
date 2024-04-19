@@ -15,35 +15,37 @@ class Perceptron:
 		# for nb_neuron, acti in zip(layers, activation):
 		for nb_neuron in layers:
 			self.layers.append(Layer(nb_neuron, "sigmoid"))
-		self.layers.append(Layer(1, "softmax"))
-		# self.layers.append(Layer(1, "sigmoid"))
+		# self.layers.append(Layer(1, "ReLu"))
+		self.layers.append(Layer(1, "sigmoid"))
 		self.epochs = epochs
 		self.loss_function = loss_function
 		self.batch_size = batch_size
 		self.lr = lr
 
 
-	def compute_gradients(self, X, y, Z):
+	def compute_gradients(self, X, y, A):
 		gradients = []
 		m = y.shape[1]
-		dZ = Z[len(Z) - 1]
-		for i in range(len(Z) - 1, -1, -1):
+		dZ = A[len(A) - 1] - y
+		for i, layer in reversed(list(enumerate(self.layers))):
 			if i == 0:
-				dW = 1/m * dZ.dot(X.T)
+				dW = 1/m * dZ.dot(X)
 			else :
-				dW = 1/m * dZ.dot(Z[i - 1].T)
+				dW = 1/m * dZ.dot(A[i - 1].T)
 				
 			db = 1/m * np.sum(dZ, axis=1, keepdims=True)
 			if i!=0:
-				dZ = np.dot(self.layers[i].W.T, dZ) * self.layers[i].derivative_f(Z[i]) # np.dot(self.layers[i].W.T, dZ) * deritative
+				dZ = np.dot(self.layers[i].W.T, dZ) * self.layers[i].derivative_f(A[i]) # np.dot(self.layers[i].W.T, dZ) * deritative
+			# if i == len(A)-1:
+			# 	dZ = np.dot(self.layers[i].W.T, dZ) * A[len(A)-1]
 			gradients.append([dW, db])
 		return gradients
 
 
-	def backpropagation(self, X, y, Z):
-		gradients = self.compute_gradients(X.T, y.reshape(-1, 1).T, Z)
-		for i in range(len(self.layers) -1, -1, -1):
-			self.layers[i].update_weight_and_bias(gradients[abs(i - (len(self.layers) - 1))], self.lr)
+	def backpropagation(self, X, y, A):
+		gradients = self.compute_gradients(X.T, y.reshape(-1, 1).T, A)
+		for i, layer in reversed(list(enumerate(self.layers))):
+			layer.update_weight_and_bias(gradients[abs(i-(len(A)-1))], self.lr)
 
 
 	def train(self, X, y, X_valid, y_valid):
@@ -53,7 +55,7 @@ class Perceptron:
 		for iter in range(self.epochs):
 			Z = []
 			# FORWARD PROPAGATION
-			Z.append(self.layers[0].feedforwarding(X.T, self.batch_size))
+			Z.append(self.layers[0].feedforwarding(X, self.batch_size))
 			for i in range(1, len(self.layers)):
 				Z.append(self.layers[i].feedforwarding(Z[i-1], self.batch_size))
 			# BACKWARD PROPAGATION

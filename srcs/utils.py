@@ -4,6 +4,7 @@ import sys
 import os
 from loss_functions import binarycrossentropy
 
+
 def control_layers(layers):
 	for i, size in enumerate(layers):
 		if not 1 < size < 100:

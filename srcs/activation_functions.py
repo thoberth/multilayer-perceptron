@@ -1,9 +1,5 @@
 import numpy as np
 import sklearn
-# Softmax MANDATORY
-# hyperboloid tangent
-# rectified linear unit
-
 
 def softmax(Z):
 	e_z = np.exp(Z)
@@ -19,7 +15,7 @@ def tanh(Z):
 	return res
 
 def ReLu(Z, threshold = 0):
-	return np.max(threshold, Z)
+	return np.maximum(threshold, Z)
 
 def derivative_softmax(X):
 	return X

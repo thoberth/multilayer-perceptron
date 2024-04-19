@@ -35,4 +35,4 @@ if __name__ == '__main__':
 	# plt.show()
 	X_valid = df_valid.iloc[:, 2:].to_numpy()
 	y_valid = df_valid.iloc[:, 1].apply(lambda x: 0 if x == 'B' else 1).to_numpy()
-	p = Perceptron(layers=args.layer, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate).train(X, y, X_valid, y_valid)
+	p = Perceptron(layers=args.layer, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate).train(X.T, y, X_valid, y_valid)
