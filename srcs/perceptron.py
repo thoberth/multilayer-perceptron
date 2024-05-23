@@ -14,63 +14,55 @@ class Perceptron:
 		self.layers = []
 		# for nb_neuron, acti in zip(layers, activation):
 		for nb_neuron in layers:
-			self.layers.append(Layer(nb_neuron, "sigmoid"))
+			self.layers.append(Layer(nb_neuron, "ReLu"))
 		# self.layers.append(Layer(1, "ReLu"))
-		self.layers.append(Layer(1, "sigmoid"))
+		self.layers.append(Layer(2, "sigmoid"))
 		self.epochs = epochs
 		self.loss_function = loss_function
 		self.batch_size = batch_size
 		self.lr = lr
 
 
-	def compute_gradients(self, X, y, A):
-		gradients = []
-		m = y.shape[1]
-		dZ = A[len(A) - 1] - y
-		for i, layer in reversed(list(enumerate(self.layers))):
-			if i == 0:
-				dW = 1/m * dZ.dot(X)
-			else :
-				dW = 1/m * dZ.dot(A[i - 1].T)
-				
-			db = 1/m * np.sum(dZ, axis=1, keepdims=True)
-			if i!=0:
-				dZ = np.dot(self.layers[i].W.T, dZ) * self.layers[i].derivative_f(A[i]) # np.dot(self.layers[i].W.T, dZ) * deritative
-			# if i == len(A)-1:
-			# 	dZ = np.dot(self.layers[i].W.T, dZ) * A[len(A)-1]
-			gradients.append([dW, db])
-		return gradients
+	def backpropagation(self, X, y, caches):
+		m = X.shape[0]
+		dA = caches[-1][0] - y
+		for i in  reversed(range(len(self.layers))):
+			A, Z, W, b = caches[i]
 
+			dZ = dA * self.layers[i].derivative_f(Z)
+			dW = np.dot(caches[i-1][0].T, dZ) / m if i > 0 else np.dot(X.T, dZ) / m
+			db = np.sum(dZ, axis=0, keepdims=True) / m
+			dA = np.dot(dZ, W.T)
 
-	def backpropagation(self, X, y, A):
-		gradients = self.compute_gradients(X.T, y.reshape(-1, 1).T, A)
-		for i, layer in reversed(list(enumerate(self.layers))):
-			layer.update_weight_and_bias(gradients[abs(i-(len(A)-1))], self.lr)
-
+			self.layers[i].update_weight_and_bias([dW, db], self.lr)
 
 	def train(self, X, y, X_valid, y_valid):
 		loss = []
 		acc = []
 		acc2 = []
 		for iter in range(self.epochs):
-			Z = []
+			A = X
+			caches = []
+
 			# FORWARD PROPAGATION
-			Z.append(self.layers[0].feedforwarding(X, self.batch_size))
-			for i in range(1, len(self.layers)):
-				Z.append(self.layers[i].feedforwarding(Z[i-1], self.batch_size))
+			for i in range(len(self.layers)):
+				Z, A = self.layers[i].feedforwarding(A, self.batch_size)
+				caches.append((A, Z, self.layers[i].W, self.layers[i].b))
+
+			output = A
 			# BACKWARD PROPAGATION
-			self.backpropagation(X, y, Z)
+			self.backpropagation(X, y, caches)
 
 
 			if iter % 25 == 0:
-				A = []
-				A.append(self.layers[0].feedforwarding(X_valid.T, self.batch_size))
-				for i in range(1, len(self.layers)):
-					A.append(self.layers[i].feedforwarding(A[i-1], self.batch_size))
-				loss.append(self.loss_function(y, Z[len(Z) - 1]))
-				acc.append(accuracy_score(y.flatten(), self.predict(Z[len(Z) - 1].flatten())))
-				acc2.append(accuracy_score(y_valid.flatten(), self.predict(A[len(A) - 1].flatten())))
-				print('LOSS : ', loss[len(loss) - 1], '\tACCURACY', acc[len(acc) -1], '\tACCURACY2', acc2[len(acc2) -1])
+				# Z_valid = []
+				# Z_valid.append(self.layers[0].feedforwarding(X_valid.T, self.batch_size))
+				# for i in range(1, len(self.layers)):
+				# 	Z_valid.append(self.layers[i].feedforwarding(Z_valid[i-1], self.batch_size))
+				loss.append(self.loss_function(y, output))
+				acc.append(accuracy_score(y, self.predict(Z[len(Z) - 1])))
+				# acc2.append(accuracy_score(y_valid.flatten(), self.predict(Z_valid[len(Z_valid) - 1].flatten())))
+				print('LOSS : ', loss[len(loss) - 1], '\tACCURACY', acc[len(acc) -1])#, '\tACCURACY2', acc2[len(acc2) -1])
 				# if len(acc2) > 1 and acc2[len(acc2) -1] < acc2[len(acc2) -2]:
 				# 	print(f'Early stop before overfitting at iter = {iter}, last weights retablished')
 				# 	self.layers = deepcopy(old_layers)
@@ -83,11 +75,11 @@ class Perceptron:
 
 	def plot_history(self, loss: List, acc: List, acc2: List):
 		plt.plot(loss, 'C0', label='Loss')
-		plt.plot(acc, 'C1', label='Train acc')
-		plt.plot(acc2, 'C2', label='Valid acc')
+		# plt.plot(acc, 'C1', label='Train acc')
+		# plt.plot(acc2, 'C2', label='Valid acc')
 		if len(loss) == 1:
 			plt.xlim(0, 25)
-			plt.ylim(0, 1.5)
+			# plt.ylim(0, 1.5)
 			plt.legend()
 		elif len(loss) >= 25:
 			plt.xlim(0, len(loss) + 5)

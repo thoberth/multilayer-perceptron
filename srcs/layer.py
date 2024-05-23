@@ -18,11 +18,9 @@ class Layer:
 			self.activation_f = ReLu
 			self.derivative_f = derivative_Relu
 		self.nbr_neuron = neuron
-		print(f"Creation d'un hidden layer avec {neuron} neurones...")
+		print(f"Creation d'un hidden layer avec {neuron} neurones \
+utilisant {activation_f} comme fonction d'activation...")
 
-
-	# def compute_grad(self, Input, output, y):
-		
 
 	def update_weight_and_bias(self, gradients, lr: float):
 		self.W = self.W - lr * gradients[0]
@@ -32,12 +30,13 @@ class Layer:
 	def feedforwarding(self, X : np.ndarray, batch: int):
 		if not isinstance(self.W, np.ndarray):
 			np.random.seed(42)
-			self.W = np.random.randn(self.nbr_neuron, X.shape[0])
-			self.b = np.random.randn(self.nbr_neuron, 1)
-		x_batch = np.array_split(X, batch, axis=1)
+			self.W = np.random.randn(X.shape[1], self.nbr_neuron)
+			self.b = np.random.randn(1, self.nbr_neuron)
+		x_batch = np.array_split(X, batch, axis=0)
 		Z = []
 		for batch in x_batch:
-			Z.append(self.W.dot(batch) + self.b) # Z = W * X + b
-		Z = np.concatenate(Z, axis = 1)
-		Z = self.activation_f(Z)
-		return Z
+			print('ICI', batch.shape, self.W.shape)
+			Z.append(np.dot(batch, self.W) + self.b) # Z = W * X + b
+		Z = np.concatenate(Z, axis = 0)
+		A = self.activation_f(Z)
+		return Z, A

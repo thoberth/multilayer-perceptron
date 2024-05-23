@@ -6,6 +6,7 @@ from activation_functions import softmax, sigmoid
 from loss_functions import binarycrossentropy
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="This create a NN Perceptron\
@@ -29,10 +30,12 @@ if __name__ == '__main__':
 
 	df = pd.read_csv(args.csv)
 	df_valid = pd.read_csv(args.csv2)
-	y = df.iloc[:, 1].apply(lambda x: 0 if x == 'B' else 1).to_numpy()
+	y = np.array([ [0, 1] if x == 'B' else [1, 0] for x in df.iloc[:, 1].tolist()])
+	# y = np.array([ 0 if x == 'B' else 1 for x in df.iloc[:, 1].tolist()])
 	X = df.iloc[:, 2:].to_numpy()
+	print(X.shape, y.shape)
 	# sns.pairplot(df.iloc[:, 1:10], hue='1')
 	# plt.show()
 	X_valid = df_valid.iloc[:, 2:].to_numpy()
-	y_valid = df_valid.iloc[:, 1].apply(lambda x: 0 if x == 'B' else 1).to_numpy()
-	p = Perceptron(layers=args.layer, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate).train(X.T, y, X_valid, y_valid)
+	y_valid = np.array([ [0, 1] if x == 'B' else [1, 0] for x in df_valid.iloc[:, 1].tolist()])
+	p = Perceptron(layers=args.layer, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate).train(X, y, X_valid, y_valid)
