@@ -35,7 +35,7 @@ utilisant {activation_f} comme fonction d'activation...")
 		x_batch = np.array_split(X, batch, axis=0)
 		Z = []
 		for batch in x_batch:
-			print('ICI', batch.shape, self.W.shape)
+			# print('ICI', batch.shape, self.W.shape)
 			Z.append(np.dot(batch, self.W) + self.b) # Z = W * X + b
 		Z = np.concatenate(Z, axis = 0)
 		A = self.activation_f(Z)

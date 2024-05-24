@@ -2,12 +2,8 @@ import numpy as np
 import sklearn
 
 def softmax(Z):
-	e_z = np.exp(np.clip(Z, -709.78, 709.78))
-	e_z[e_z >= 0] = 1e-15
-	sum_exp = np.sum(e_z, axis=1, keepdims=True)
-	sum_exp[sum_exp <= 0] = 1e-15
-	res = e_z / sum_exp
-	return res
+	exp_x = np.exp(Z - np.max(Z, axis=1, keepdims=True))
+	return exp_x / np.sum(exp_x, axis=1, keepdims=True)
 
 def sigmoid(Z):
 	res = 1/(1 + np.exp(-Z))

@@ -1,6 +1,6 @@
 import pandas as pd
 import argparse
-from utils import control_batchsize, control_epochs, control_lr, control_file, control_layers, control_lossfunction
+from utils import control_batchsize, control_epochs, control_lr, control_file, control_layers, control_lossfunction, control_acti
 from perceptron import Perceptron
 from activation_functions import softmax, sigmoid
 from loss_functions import binarycrossentropy
@@ -12,6 +12,8 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="This create a NN Perceptron\
 									and then train with chosen args")
 	parser.add_argument('-hl', '--layer', nargs='+', default=[8, 8], type=int, action='store', help='Size of number of layers')
+
+	parser.add_argument('-a', '--acti', nargs='+', type=str, default=['sigmoid', 'sigmoid'], action='store', help='Activation function of the corresponding layer')
 
 	parser.add_argument('-e', '--epochs', type=control_epochs, default=100, action='store', help='Number of epochs while training')
 
@@ -27,15 +29,12 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 	control_layers(args.layer)
+	control_acti(args.acti )
 
 	df = pd.read_csv(args.csv)
 	df_valid = pd.read_csv(args.csv2)
-	y = np.array([ [0, 1] if x == 'B' else [1, 0] for x in df.iloc[:, 1].tolist()])
-	# y = np.array([ 0 if x == 'B' else 1 for x in df.iloc[:, 1].tolist()])
+	y = np.array([ 0 if x == 'B' else 1 for x in df.iloc[:, 1].tolist()])
 	X = df.iloc[:, 2:].to_numpy()
-	print(X.shape, y.shape)
-	# sns.pairplot(df.iloc[:, 1:10], hue='1')
-	# plt.show()
 	X_valid = df_valid.iloc[:, 2:].to_numpy()
-	y_valid = np.array([ [0, 1] if x == 'B' else [1, 0] for x in df_valid.iloc[:, 1].tolist()])
-	p = Perceptron(layers=args.layer, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate).train(X, y, X_valid, y_valid)
+	y_valid = np.array([ 0 if x == 'B' else 1 for x in df_valid.iloc[:, 1].tolist()])
+	p = Perceptron(layers=args.layer, activation=args.acti, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate).train(X, y, X_valid, y_valid)

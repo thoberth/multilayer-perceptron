@@ -12,11 +12,9 @@ from typing import List
 class Perceptron:
 	def __init__(self, layers=[8, 8], activation=['sigmoid', 'sigmoid'],  epochs=50, loss_function='binaryCrossentropy', lr=1e-4, batch_size=16) -> None:
 		self.layers = []
-		# for nb_neuron, acti in zip(layers, activation):
-		for nb_neuron in layers:
-			self.layers.append(Layer(nb_neuron, "ReLu"))
-		# self.layers.append(Layer(1, "ReLu"))
-		self.layers.append(Layer(2, "sigmoid"))
+		for nb_neuron, acti in zip(layers, activation):
+			self.layers.append(Layer(nb_neuron, acti))
+		self.layers.append(Layer(2, "softmax"))
 		self.epochs = epochs
 		self.loss_function = loss_function
 		self.batch_size = batch_size
@@ -29,14 +27,27 @@ class Perceptron:
 		for i in  reversed(range(len(self.layers))):
 			A, Z, W, b = caches[i]
 
-			dZ = dA * self.layers[i].derivative_f(Z)
+			if self.layers[i].activation_f == softmax:
+				dZ = dA
+			else:
+				dZ = dA * self.layers[i].derivative_f(Z)
 			dW = np.dot(caches[i-1][0].T, dZ) / m if i > 0 else np.dot(X.T, dZ) / m
 			db = np.sum(dZ, axis=0, keepdims=True) / m
 			dA = np.dot(dZ, W.T)
 
 			self.layers[i].update_weight_and_bias([dW, db], self.lr)
 
+
 	def train(self, X, y, X_valid, y_valid):
+		if self.layers[-1].activation_f == softmax:
+			y_one_hot = np.zeros((y.size, y.max() + 1))
+			y_one_hot[np.arange(y.size), y] = 1
+			y = y_one_hot
+			y_one_hot = np.zeros((y_valid.size, y_valid.max() + 1))
+			y_one_hot[np.arange(y_valid.size), y_valid] = 1
+			y_valid = y_one_hot
+		else:
+			y = y.reshape(-1, 1)
 		loss = []
 		acc = []
 		acc2 = []
@@ -75,7 +86,7 @@ class Perceptron:
 
 	def plot_history(self, loss: List, acc: List, acc2: List):
 		plt.plot(loss, 'C0', label='Loss')
-		# plt.plot(acc, 'C1', label='Train acc')
+		plt.plot(acc, 'C1', label='Train acc')
 		# plt.plot(acc2, 'C2', label='Valid acc')
 		if len(loss) == 1:
 			plt.xlim(0, 25)

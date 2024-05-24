@@ -5,10 +5,18 @@ import os
 from loss_functions import binarycrossentropy
 
 
+def control_acti(activations):
+	activations_available = ['ReLu', 'sigmoid', 'tanh', 'softmax']
+	for acti in activations:
+		if acti not in activations_available:
+			print(f"{acti} is not an available activation function\nActivation function: {activations_available}")
+
+
 def control_layers(layers):
-	for i, size in enumerate(layers):
-		if not 1 < size < 100:
+	for size in (layers):
+		if not 1 <= size <= 100:
 			print(f"{size} n'est pas une correcte taille de layers", file=sys.stderr)
+			exit()
 
 
 def control_epochs(epochs):
