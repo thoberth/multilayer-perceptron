@@ -10,7 +10,8 @@ from sklearn.metrics import accuracy_score
 from typing import List
 
 class Perceptron:
-	def __init__(self, layers=[8, 8], activation=['sigmoid', 'sigmoid'],  epochs=50, loss_function='binaryCrossentropy', lr=1e-4, batch_size=16) -> None:
+	def __init__(self, layers=[8, 8], activation=['sigmoid', 'sigmoid'],  epochs=50,\
+			  loss_function='binaryCrossentropy', lr=1e-4, batch_size=16, early_stop=False) -> None:
 		self.layers = []
 		for nb_neuron, acti in zip(layers, activation):
 			self.layers.append(Layer(nb_neuron, acti))
@@ -19,6 +20,7 @@ class Perceptron:
 		self.loss_function = loss_function
 		self.batch_size = batch_size
 		self.lr = lr
+		self.early_stop = early_stop
 
 
 	def backpropagation(self, X, y, caches):
@@ -39,13 +41,10 @@ class Perceptron:
 
 
 	def train(self, X, y, X_valid, y_valid):
+		if self.early_stop:
+			old_layers = []
 		if self.layers[-1].activation_f == softmax:
-			y_one_hot = np.zeros((y.size, y.max() + 1))
-			y_one_hot[np.arange(y.size), y] = 1
-			y = y_one_hot
-			y_one_hot = np.zeros((y_valid.size, y_valid.max() + 1))
-			y_one_hot[np.arange(y_valid.size), y_valid] = 1
-			y_valid = y_one_hot
+			y, y_valid = self.one_hot_encoded(y, y_valid)
 		else:
 			y = y.reshape(-1, 1)
 		loss = []
@@ -66,35 +65,55 @@ class Perceptron:
 
 
 			if iter % 25 == 0:
-				# Z_valid = []
-				# Z_valid.append(self.layers[0].feedforwarding(X_valid.T, self.batch_size))
-				# for i in range(1, len(self.layers)):
-				# 	Z_valid.append(self.layers[i].feedforwarding(Z_valid[i-1], self.batch_size))
+				A_valid = X_valid
+				for i in range(len(self.layers)):
+					_, A_valid = self.layers[i].feedforwarding(A_valid, self.batch_size)
 				loss.append(self.loss_function(y, output))
-				acc.append(accuracy_score(y, self.predict(Z[len(Z) - 1])))
-				# acc2.append(accuracy_score(y_valid.flatten(), self.predict(Z_valid[len(Z_valid) - 1].flatten())))
-				print('LOSS : ', loss[len(loss) - 1], '\tACCURACY', acc[len(acc) -1])#, '\tACCURACY2', acc2[len(acc2) -1])
-				# if len(acc2) > 1 and acc2[len(acc2) -1] < acc2[len(acc2) -2]:
-				# 	print(f'Early stop before overfitting at iter = {iter}, last weights retablished')
-				# 	self.layers = deepcopy(old_layers)
-				# 	break
-				# else:
-				# 	old_layers = deepcopy(self.layers)
+				acc.append(accuracy_score(y, self.predict(output)))
+				acc2.append(accuracy_score(y_valid, self.predict(A_valid)))
+
+				print(f'ITER : {iter:<4} LOSS : {loss[-1]:<20} ACCURACY :{acc[-1]:<20} VALIDATION_ACCURACY :{acc2[-1]:<20}', end='\r')
+				if self.early_stop :
+					if self.early_stop_check(acc, acc2):
+						print(f'\nEarly stop before overfitting at iter = {iter}, last weights retablished')
+						self.layers = deepcopy(old_layers[-1])
+						break
+					else:
+						old_layers.append(deepcopy(self.layers))
 				self.plot_history(loss, acc, acc2)
 		plt.show()
+
+
+	def early_stop_check(self, accuracy: List, validation_accuracy: List)-> bool:
+		if len(validation_accuracy) >= 3:
+			if (validation_accuracy[-2] > validation_accuracy[-1] and accuracy[-2] == accuracy[-1]) or\
+				(validation_accuracy[-2] == validation_accuracy[-1] and accuracy[-2] == accuracy[-1]):
+				return True
+		else:
+			return False
 
 
 	def plot_history(self, loss: List, acc: List, acc2: List):
 		plt.plot(loss, 'C0', label='Loss')
 		plt.plot(acc, 'C1', label='Train acc')
-		# plt.plot(acc2, 'C2', label='Valid acc')
+		plt.plot(acc2, 'C2', label='Valid acc')
 		if len(loss) == 1:
 			plt.xlim(0, 25)
-			# plt.ylim(0, 1.5)
+			plt.ylim(0, 1.5)
 			plt.legend()
 		elif len(loss) >= 25:
 			plt.xlim(0, len(loss) + 5)
 		plt.pause(0.1)
+
+
+	def one_hot_encoded(self, y, y_valid):
+		y_one_hot = np.zeros((y.size, y.max() + 1))
+		y_one_hot[np.arange(y.size), y] = 1
+		y = y_one_hot
+		y_one_hot = np.zeros((y_valid.size, y_valid.max() + 1))
+		y_one_hot[np.arange(y_valid.size), y_valid] = 1
+		y_valid = y_one_hot
+		return y, y_valid
 
 
 	def predict(self, Z):

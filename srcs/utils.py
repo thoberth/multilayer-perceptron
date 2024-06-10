@@ -9,14 +9,15 @@ def control_acti(activations):
 	activations_available = ['ReLu', 'sigmoid', 'tanh', 'softmax']
 	for acti in activations:
 		if acti not in activations_available:
-			print(f"{acti} is not an available activation function\nActivation function: {activations_available}")
+			print(f"{acti} is not an available activation function\n\tActivation function: {activations_available}")
+			exit(1)
 
 
 def control_layers(layers):
 	for size in (layers):
 		if not 1 <= size <= 100:
 			print(f"{size} n'est pas une correcte taille de layers", file=sys.stderr)
-			exit()
+			exit(1)
 
 
 def control_epochs(epochs):

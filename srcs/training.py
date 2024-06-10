@@ -27,9 +27,11 @@ if __name__ == '__main__':
 
 	parser.add_argument('--csv2', default='Validation_Dataset.csv', type=control_file, action='store', help='The Dataset to evaluate')
 
+	parser.add_argument('--early_stop', default=False , type=bool, action='store', help='Early stop to stop training before the number of epochs if needed')
+
 	args = parser.parse_args()
 	control_layers(args.layer)
-	control_acti(args.acti )
+	control_acti(args.acti)
 
 	df = pd.read_csv(args.csv)
 	df_valid = pd.read_csv(args.csv2)
@@ -37,4 +39,4 @@ if __name__ == '__main__':
 	X = df.iloc[:, 2:].to_numpy()
 	X_valid = df_valid.iloc[:, 2:].to_numpy()
 	y_valid = np.array([ 0 if x == 'B' else 1 for x in df_valid.iloc[:, 1].tolist()])
-	p = Perceptron(layers=args.layer, activation=args.acti, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate).train(X, y, X_valid, y_valid)
+	p = Perceptron(layers=args.layer, activation=args.acti, epochs=args.epochs, loss_function=args.loss, lr=args.learning_rate, early_stop=args.early_stop).train(X, y, X_valid, y_valid)

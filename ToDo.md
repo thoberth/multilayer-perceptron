@@ -6,7 +6,7 @@ Data is raw, so we need to preprocess the data.
 
 ## 2. Argument of file
 
-python file.py --layer 24 24 24 --epochs 84 --loss binaryCrossentropy --batch_size 8 --learning_rate 0.0314
+python file.py --acti sigmoid ReLU tanh --layer 24 24 24 --epochs 84 --loss binaryCrossentropy --batch_size 8 --learning_rate 0.0314
 
 ## 3. Activation function
 
@@ -44,3 +44,13 @@ training phase (example : Loss and Accuracy)
   perform a prediction on a given set (which will also be loaded), then evaluate it
   using the binary cross-entropy error function :\
   E = − 1/N (∑ n=1->N) [yn log pn + (1 − yn) log(1 − pn)]
+
+
+## before correction
+
+- add option to command line for early stop (boolean)
+- add an optimizer technique to increase SGD
+- make a .py to compare different type of activations functions
+- add other metrics (f1 score/ recall ) etc etc
+- save and load layers param with specific filename
+- add .py for prediction
