@@ -5,20 +5,19 @@ import os
 from loss_functions import binarycrossentropy
 
 
-def control_acti(activations):
+def control_acti(activation):
 	activations_available = ['ReLu', 'sigmoid', 'tanh', 'softmax']
-	for acti in activations:
-		if acti not in activations_available:
-			print(f"{acti} is not an available activation function\n\tActivation function: {activations_available}")
-			exit(1)
+	if activation not in activations_available:
+		raise argparse.ArgumentTypeError(f"{activation} is not an available activation function\n\tActivation function: {activations_available}")
+	return activation
 
-
-def control_layers(layers):
-	for size in (layers):
-		if not 1 <= size <= 100:
-			print(f"{size} n'est pas une correcte taille de layers", file=sys.stderr)
-			exit(1)
-
+def control_layers(layer_size):
+	try:
+		layer_size = int(layer_size)
+	except ValueError:
+		if not 1 <= layer_size <= 100:
+			raise argparse.ArgumentTypeError(f"{layer_size} n'est pas une correcte taille de layers", file=sys.stderr)
+	return layer_size
 
 def control_epochs(epochs):
 	try:
@@ -67,3 +66,10 @@ def control_lossfunction(loss_function):
 		func = binarycrossentropy
 	else:
 		raise argparse.ArgumentError(f"{loss_function} n'est pas une fonction cout valide")
+
+def validate_metrics(metrics):
+	valid_metrics = {'f1 score', 'recall', 'auc'}
+	metrics = metrics.lower().replace('_', ' ')
+	if not metrics in valid_metrics:
+		raise argparse.ArgumentTypeError(f"{metrics} est un nom de metrique invalide!")
+	return metrics
