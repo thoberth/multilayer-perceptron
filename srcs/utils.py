@@ -63,7 +63,7 @@ def control_file(file_path):
 def control_lossfunction(loss_function):
 	func = None
 	if loss_function == 'binarycrossentropy':
-		func = binarycrossentropy
+		return loss_function
 	else:
 		raise argparse.ArgumentError(f"{loss_function} n'est pas une fonction cout valide")
 

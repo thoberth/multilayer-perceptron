@@ -27,7 +27,7 @@ utilisant {activation_f} comme fonction d'activation...")
 		self.b = self.b - lr * gradients[1]
 
 
-	def feedforwarding(self, X : np.ndarray, batch: int):
+	def feedforwarding(self, X : np.ndarray, batch: int = 1):
 		if not isinstance(self.W, np.ndarray):
 			np.random.seed(42)
 			self.W = np.random.randn(X.shape[1], self.nbr_neuron)

@@ -4,20 +4,24 @@ import pandas as pd
 import numpy as np
 from tqdm.auto import tqdm
 import pickle
+from collections import deque
 import matplotlib.pyplot as plt
 from copy import deepcopy
 from sklearn.metrics import accuracy_score, f1_score, recall_score, roc_auc_score
 from typing import List
+from loss_functions import binarycrossentropy
+
 
 class Perceptron:
-	def __init__(self, layers=[8, 8], activation=['sigmoid', 'sigmoid'],  epochs=50,\
-			  loss_function='binaryCrossentropy', lr=1e-4, batch_size=16, early_stop=False, metrics=[], show_metrics=False) -> None:
+	def __init__(self, layers=[8, 8], activation=['sigmoid', 'sigmoid'],  epochs=1000,\
+			  loss_function='binarycrossentropy', lr=1e-4, batch_size=1, early_stop=-1, metrics=[], show_metrics=False) -> None:
 		self.layers = []
 		for nb_neuron, acti in zip(layers, activation):
 			self.layers.append(Layer(nb_neuron, acti))
 		self.layers.append(Layer(2, "softmax"))
 		self.epochs = epochs
-		self.loss_function = loss_function
+		if loss_function == 'binarycrossentropy':
+			self.loss_function = binarycrossentropy
 		self.batch_size = batch_size
 		self.lr = lr
 		self.early_stop = early_stop
@@ -47,8 +51,8 @@ class Perceptron:
 
 
 	def train(self, X, y, X_valid, y_valid):
-		if self.early_stop:
-			old_layers = []
+		if self.early_stop != -1:
+			old_layers = deque(maxlen=self.early_stop)
 		if self.layers[-1].activation_f == softmax:
 			y, y_valid = self.one_hot_encoded(y, y_valid)
 		else:
@@ -79,10 +83,10 @@ class Perceptron:
 				if self.show_metrics:
 					print(f'ITER : {iter:<4} LOSS : {loss[-1]:<20} ACCURACY :{self.metrics["accuracy"][-1]:<20} \
 VALIDATION_ACCURACY :{self.metrics["validation_accuracy"][-1]:<20}', end='\r')
-				if self.early_stop :
+				if self.early_stop != -1:
 					if self.early_stop_check():
 						print(f'\nEarly stop before overfitting at iter = {iter}, last weights retablished')
-						self.layers = deepcopy(old_layers[-1])
+						self.layers = deepcopy(old_layers[-self.early_stop])
 						break
 					else:
 						old_layers.append(deepcopy(self.layers))
@@ -108,9 +112,9 @@ VALIDATION_ACCURACY :{self.metrics["validation_accuracy"][-1]:<20}', end='\r')
 	def early_stop_check(self)-> bool:
 		validation_accuracy = self.metrics['validation_accuracy']
 		accuracy = self.metrics['accuracy']
-		if len(validation_accuracy) >= 3:
-			if (validation_accuracy[-3] > validation_accuracy[-1] and accuracy[-3] == accuracy[-1]) or\
-				(validation_accuracy[-3] == validation_accuracy[-1] and accuracy[-3] == accuracy[-1]):
+		if len(validation_accuracy) >= self.early_stop:
+			if (validation_accuracy[-self.early_stop] > validation_accuracy[-1] and accuracy[-self.early_stop] == accuracy[-1]) or\
+				(validation_accuracy[-self.early_stop] == validation_accuracy[-1] and accuracy[-self.early_stop] == accuracy[-1]):
 				return True
 		else:
 			return False
