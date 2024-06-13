@@ -45,4 +45,4 @@ if __name__ == '__main__':
 	p = Perceptron(layers=args.layer, activation=args.acti, epochs=args.epochs, loss_function=args.loss,\
 				lr=args.learning_rate, early_stop=args.early_stop, metrics=args.metrics, show_metrics=args.show)
 	p.train(X, y, X_valid, y_valid)
-	# p.save_model(f'Training_{datetime.now().strftime("%m_%d_%H:%M:%S")}')
+	p.save_model(f'Training_{datetime.now().strftime("%m_%d_%H:%M:%S")}')

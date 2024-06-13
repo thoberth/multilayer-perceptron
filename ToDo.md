@@ -49,7 +49,4 @@ training phase (example : Loss and Accuracy)
 ## before correction
 
 - add an optimizer technique to increase SGD
-- make a .py to compare different type of activations functions
-- add other metrics (f1 score/ recall ) etc etc
-- save and load layers param with specific filename
 - add .py for prediction

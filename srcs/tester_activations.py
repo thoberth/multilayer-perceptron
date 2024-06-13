@@ -41,7 +41,7 @@ class Tester_activations(Perceptron):
 					y_valid_hat = percep.predict(A_valid)
 					percep.update_metrics(y_hat=y_hat, y_true=y, y_valid_hat=y_valid_hat, y_valid_true=y_valid)
 			if iter % 25 == 0:
-				print(f"ITER {iter:<4} LOSS {loss[0][-1]:.8}", end='\r')
+				print(f"ITER {iter:<4}", end='\r')
 				self.plot_history(loss)
 		plt.show()
 		self.put_metrics()
@@ -66,7 +66,6 @@ class Tester_activations(Perceptron):
 			plt.pause(0.001)
 
 
-
 	def init_plot(self):
 		self.fig, self.axs = plt.subplots(2, 2, figsize=(10, 8))
 		for i, name in enumerate(self.activations):
@@ -79,7 +78,7 @@ class Tester_activations(Perceptron):
 
 	def put_metrics(self):
 		for percep, name in zip(self.perceptrons, self.activations):
-			print(name.upper(), ':', end=" ")
+			print(f"{name.upper():<8s}", ':', end=" ")
 			for metrics, value in percep.metrics.items():
-				print(metrics, '=', f"{value[-1]:.7}", end=', ')
+				print(metrics, '=', f"{value[-1]:.8f}", end=', ')
 			print()

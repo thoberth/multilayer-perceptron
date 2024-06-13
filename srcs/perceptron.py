@@ -154,14 +154,21 @@ VALIDATION_ACCURACY :{self.metrics["validation_accuracy"][-1]:<20}', end='\r')
 		return res
 
 
+	def predict_res(self, X_valid):
+		A_valid = X_valid
+		for i in range(len(self.layers)):
+			_, A_valid = self.layers[i].feedforwarding(A_valid, self.batch_size)
+		return A_valid
+
+
 	def save_model(self, filename):
-		print(f"Enregistrement du modele a {filename+'.pickle'}")
+		print(f"\nEnregistrement du modele a {filename+'.pickle'}")
 		with open(filename+'.pickle', 'wb') as f:
-			pickle.dump(self.layers, f)
+			pickle.dump(self, f)
 
-
-	def load_model(self, filename):
-		print(f"Chargement du modele depuis {filename+'.pickle'}")
-		with open(filename+'.pickle', 'rb') as f:
-			self.layers = pickle.load(f)
+	@classmethod
+	def load_model(cls, filename):
+		print(f"Chargement du modele depuis {filename}")
+		with open(filename, 'rb') as f:
+			return pickle.load(f)
 
