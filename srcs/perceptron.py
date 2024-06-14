@@ -14,7 +14,8 @@ from loss_functions import binarycrossentropy
 
 class Perceptron:
 	def __init__(self, layers=[8, 8], activation=['sigmoid', 'sigmoid'],  epochs=1000,\
-			  loss_function='binarycrossentropy', lr=1e-4, batch_size=1, early_stop=-1, metrics=[], show_metrics=False) -> None:
+			  loss_function='binarycrossentropy', lr=1e-4, batch_size=1, early_stop=-1,\
+				metrics=[], show_metrics=False, momentum=-1) -> None:
 		self.layers = []
 		for nb_neuron, acti in zip(layers, activation):
 			self.layers.append(Layer(nb_neuron, acti))
@@ -26,6 +27,7 @@ class Perceptron:
 		self.lr = lr
 		self.early_stop = early_stop
 		self.show_metrics = show_metrics
+		self.momentum=momentum
 		if metrics != []:
 			self.metrics = {m:[] for m in metrics}
 		else:
@@ -33,7 +35,7 @@ class Perceptron:
 		self.metrics.update({'accuracy': [], 'validation_accuracy': []})
 
 
-	def backpropagation(self, X, y, caches):
+	def backpropagation(self, X, y, caches, momentum):
 		m = X.shape[0]
 		dA = caches[-1][0] - y
 		for i in  reversed(range(len(self.layers))):
@@ -47,7 +49,10 @@ class Perceptron:
 			db = np.sum(dZ, axis=0, keepdims=True) / m
 			dA = np.dot(dZ, W.T)
 
-			self.layers[i].update_weight_and_bias([dW, db], self.lr)
+			if self.momentum == -1:
+				self.layers[i].update_weight_and_bias([dW, db], self.lr)
+			else:
+				self.layers[i].update_weight_and_bias_momentum([dW, db], self.lr, momentum)
 
 
 	def train(self, X, y, X_valid, y_valid):
@@ -69,7 +74,7 @@ class Perceptron:
 
 			output = A
 			# BACKWARD PROPAGATION
-			self.backpropagation(X, y, caches)
+			self.backpropagation(X, y, caches, self.momentum)
 
 			if iter % 25 == 0:
 				A_valid = X_valid

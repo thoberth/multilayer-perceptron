@@ -1,6 +1,6 @@
 import pandas as pd
 import argparse
-from utils import control_batchsize, control_epochs, control_lr, control_file, control_layers, control_lossfunction, control_acti, validate_metrics
+from utils import control_batchsize, control_epochs, control_lr, control_file, control_layers, control_lossfunction, control_acti, validate_metrics, validate_momentum
 from perceptron import Perceptron
 from activation_functions import softmax, sigmoid
 from loss_functions import binarycrossentropy
@@ -34,6 +34,8 @@ if __name__ == '__main__':
 
 	parser.add_argument('--metrics', nargs='+', default=[], type=validate_metrics, help="Specify one or more metrics. Valid options are 'f1_Score', 'accuracy', 'recall'")
 
+	parser.add_argument('-m', '--momentum', nargs=1, default=-1, type=validate_momentum, help="Specify if momentum optimizer should be used.")
+
 	args = parser.parse_args()
 
 	df = pd.read_csv(args.csv)
@@ -43,6 +45,7 @@ if __name__ == '__main__':
 	X_valid = df_valid.iloc[:, 2:].to_numpy()
 	y_valid = np.array([ 0 if x == 'B' else 1 for x in df_valid.iloc[:, 1].tolist()])
 	p = Perceptron(layers=args.layer, activation=args.acti, epochs=args.epochs, loss_function=args.loss,\
-				lr=args.learning_rate, early_stop=args.early_stop, metrics=args.metrics, show_metrics=args.show)
+				lr=args.learning_rate, early_stop=args.early_stop, metrics=args.metrics,\
+					show_metrics=args.show, momentum=args.momentum)
 	p.train(X, y, X_valid, y_valid)
 	p.save_model(f'Training_{datetime.now().strftime("%m_%d_%H:%M:%S")}')
