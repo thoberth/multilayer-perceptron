@@ -5,8 +5,8 @@ import argparse
 from utils import control_file
 
 if __name__=="__main__":
-	parser = argparse.ArgumentParser(description="This program predict a NN Perceptron\
-									and then train with chosen args")
+	parser = argparse.ArgumentParser(description="This program predict\
+								  with the registered weights of Perceptron")
 
 	parser.add_argument('-d','--dataset', default='Validation_Dataset.csv', type=control_file, action='store', help='The Dataset to evaluate')
 

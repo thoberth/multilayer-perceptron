@@ -44,9 +44,3 @@ training phase (example : Loss and Accuracy)
   perform a prediction on a given set (which will also be loaded), then evaluate it
   using the binary cross-entropy error function :\
   E = − 1/N (∑ n=1->N) [yn log pn + (1 − yn) log(1 − pn)]
-
-
-## before correction
-
-- add an optimizer technique to increase SGD
-- add .py for prediction
